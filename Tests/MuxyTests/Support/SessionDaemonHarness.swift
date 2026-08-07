@@ -136,7 +136,10 @@ final class SessionDaemonHarness {
                 command: command,
                 shell: shell,
                 resourcesDirectory: "",
-                environment: [SessionEnvironmentEntry(key: "PATH", value: "/usr/bin:/bin")] + environment,
+                environment: [
+                    SessionEnvironmentEntry(key: "PATH", value: "/usr/bin:/bin"),
+                    SessionEnvironmentEntry(key: "HOME", value: directory.path)
+                ] + environment,
                 metadata: metadata
             ).encoded()
         )

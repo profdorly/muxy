@@ -25,6 +25,7 @@ appcast*.xml
 .muxy/
 /muxy-markdown-remote-image-urlcache
 .opencode/
+.factory/
 .pi/
 .context/
 

@@ -45,6 +45,12 @@ swift run Muxy
 scripts/checks.sh --fix   # auto-fix formatting and linting, then build and test
 ```
 
+Optionally install the pre-commit hook to run formatting and linting automatically before each commit:
+
+```bash
+scripts/install-hooks.sh
+```
+
 4. Push your branch and open a pull request
 
 ## Code Standards

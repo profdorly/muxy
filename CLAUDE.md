@@ -18,6 +18,10 @@ Run `scripts/checks.sh --fix` after every task.
 
 Test processes use isolated Application Support storage.
 
+## Validation
+
+`scripts/checks.sh --fix` is the single validation entry point and must pass after every task. Muxy is a native macOS SwiftUI GUI app with no scriptable user flow, so agents must never attempt UI automation or QA against the running app. Compilation plus unit tests are the only automated validation. Visual behavior is verified manually by the user.
+
 ## Top Level Rules
 
 - Security first
