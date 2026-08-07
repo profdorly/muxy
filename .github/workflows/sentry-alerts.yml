@@ -1,0 +1,58 @@
+name: Sentry Alerts
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check configuration
+        id: config
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [[ -z "$SENTRY_AUTH_TOKEN" || -z "$SENTRY_ORG" || -z "$SENTRY_PROJECT" || -z "$DISCORD_WEBHOOK_URL" ]]; then
+            echo "Sentry or Discord configuration missing; skipping alerting run"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Alert on new unresolved Sentry issues
+        if: steps.config.outputs.ready == 'true'
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          set -euo pipefail
+          WINDOW_SECONDS=2100
+          CUTOFF=$(date -u -d "@$(( $(date +%s) - WINDOW_SECONDS ))" +%Y-%m-%dT%H:%M:%SZ)
+
+          RESPONSE=$(curl -fsS \
+            -H "Authorization: Bearer $SENTRY_AUTH_TOKEN" \
+            "https://sentry.io/api/0/projects/$SENTRY_ORG/$SENTRY_PROJECT/issues/?query=is:unresolved&sort=new&limit=10")
+
+          NEW_COUNT=$(echo "$RESPONSE" | jq --arg cutoff "$CUTOFF" '[.[] | select(.firstSeen > $cutoff)] | length')
+          if [[ "$NEW_COUNT" == "0" ]]; then
+            echo "No new unresolved issues in the last $((WINDOW_SECONDS / 60)) minutes"
+            exit 0
+          fi
+
+          LINES=$(echo "$RESPONSE" | jq -r --arg cutoff "$CUTOFF" \
+            '[.[] | select(.firstSeen > $cutoff) | "**[\(.level | ascii_upcase)]** \(.title) — \(.count) event(s)\n<\(.permalink)>"] | .[0:5] | join("\n")')
+
+          PAYLOAD=$(jq -n \
+            --arg content "🚨 **Muxy Sentry alert**: $NEW_COUNT new issue(s) in the last $((WINDOW_SECONDS / 60)) min" \
+            --arg lines "$LINES" \
+            '{username: "Muxy Alerts", embeds: [{title: "New Sentry issues", description: $lines, color: 15158332}], content: $content}')
+
+          curl -fsSL -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK_URL"
+          echo "Posted alert for $NEW_COUNT issue(s)"

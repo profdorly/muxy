@@ -11,6 +11,8 @@ SIGN_IDENTITY=""
 SPARKLE_PUBLIC_KEY=""
 SPARKLE_FEED_URL=""
 SENTRY_DSN="${SENTRY_DSN:-}"
+POSTHOG_API_KEY="${POSTHOG_API_KEY:-}"
+POSTHOG_HOST="${POSTHOG_HOST:-}"
 
 AUTO_SIGN=false
 
@@ -44,6 +46,14 @@ while [[ $# -gt 0 ]]; do
             SENTRY_DSN="$2"
             shift 2
             ;;
+        --posthog-api-key)
+            POSTHOG_API_KEY="$2"
+            shift 2
+            ;;
+        --posthog-host)
+            POSTHOG_HOST="$2"
+            shift 2
+            ;;
         *)
             echo "Unknown option: $1"
             exit 1
@@ -52,7 +62,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$ARCH" || -z "$VERSION" ]]; then
-    echo "Usage: $0 --arch <arm64|x86_64> --version <X.Y.Z[-beta.N]> [--sign | --sign-identity <identity>] [--sparkle-public-key <key>] [--sparkle-feed-url <url>] [--sentry-dsn <dsn>]"
+    echo "Usage: $0 --arch <arm64|x86_64> --version <X.Y.Z[-beta.N]> [--sign | --sign-identity <identity>] [--sparkle-public-key <key>] [--sparkle-feed-url <url>] [--sentry-dsn <dsn>] [--posthog-api-key <key>] [--posthog-host <url>]"
     exit 1
 fi
 
@@ -135,6 +145,16 @@ cp "$PROJECT_ROOT/Muxy/Info.plist" "$APP_BUNDLE/Contents/Info.plist"
 if [[ -n "$SENTRY_DSN" ]]; then
     echo "==> Injecting Sentry DSN into Info.plist"
     /usr/libexec/PlistBuddy -c "Set :SentryDSN $SENTRY_DSN" "$APP_BUNDLE/Contents/Info.plist"
+fi
+
+if [[ -n "$POSTHOG_API_KEY" ]]; then
+    echo "==> Injecting PostHog API key into Info.plist"
+    /usr/libexec/PlistBuddy -c "Set :PostHogApiKey $POSTHOG_API_KEY" "$APP_BUNDLE/Contents/Info.plist"
+fi
+
+if [[ -n "$POSTHOG_HOST" ]]; then
+    echo "==> Injecting PostHog host into Info.plist"
+    /usr/libexec/PlistBuddy -c "Set :PostHogHost $POSTHOG_HOST" "$APP_BUNDLE/Contents/Info.plist"
 fi
 
 echo "==> Generating app icon"

@@ -114,11 +114,9 @@ final class UpdateService: NSObject {
     }
 
     private func applyFeatureFlags() {
-        #if DEBUG
-        if ProcessInfo.processInfo.environment["FF_UPDATE_AVAILABLE"] != nil {
+        if FeatureFlagService.shared.isEnabled(.updateAvailableSimulation) {
             availableUpdateVersion = "0.0.0-dev"
         }
-        #endif
     }
 
     private func observeUpdateNotifications() {

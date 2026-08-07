@@ -194,6 +194,7 @@ final class ExtensionStore {
         try FileManager.default.moveItem(at: staged.manifestRoot, to: target)
 
         reload()
+        AnalyticsService.shared.capture(.extensionInstalled)
     }
 
     func delete(extensionID: String) throws {

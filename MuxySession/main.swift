@@ -39,6 +39,7 @@ func attachMetadata() -> [SessionEnvironmentEntry] {
         (SessionMetadataKey.worktree, "MUXY_SESSION_WORKTREE"),
         (SessionMetadataKey.tab, "MUXY_SESSION_TAB"),
         (SessionMetadataKey.title, "MUXY_SESSION_TITLE"),
+        (SessionMetadataKey.traceID, "MUXY_SESSION_TRACE_ID"),
     ]
     return sources.compactMap { key, variable in
         guard let value = SessionProcessEnvironment.value(variable) else { return nil }

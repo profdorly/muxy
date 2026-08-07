@@ -1,0 +1,26 @@
+included:
+  - Muxy
+  - MuxyServer
+  - MuxyShared
+  - MuxySession
+  - MuxyHookKit
+  - MuxyExtensionHost
+  - MuxySessionProtocol
+  - MuxyHookBridge
+
+excluded:
+  - .build
+  - GhosttyKit
+  - Tests
+
+only_rules:
+  - cyclomatic_complexity
+  - file_length
+
+cyclomatic_complexity:
+  warning: 10
+  error: 20
+
+file_length:
+  warning: 400
+  error: 1000

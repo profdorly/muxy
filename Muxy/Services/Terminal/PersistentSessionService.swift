@@ -78,6 +78,7 @@ final class PersistentSessionService {
         resourcesDirectory: String? = GhosttyService.bundledResourcesPath()
     ) -> [(key: String, value: String)] {
         guard let socketPath, let binaryPath else { return [] }
+        let traceID = UUID().uuidString
         var entries: [(key: String, value: String)] = [
             (key: "MUXY_SESSION_ID", value: sessionID.uuidString),
             (key: "MUXY_SESSION_SOCKET", value: socketPath),
@@ -86,6 +87,7 @@ final class PersistentSessionService {
             (key: "MUXY_SESSION_CWD", value: workingDirectory),
             (key: "MUXY_SESSION_COMMAND", value: command ?? ""),
             (key: "GHOSTTY_SHELL_FEATURES", value: shellIntegrationFeatures()),
+            (key: "MUXY_SESSION_TRACE_ID", value: traceID),
         ]
         if let resourcesDirectory {
             entries.append((key: "MUXY_SESSION_RESOURCES", value: resourcesDirectory))
@@ -94,6 +96,7 @@ final class PersistentSessionService {
             guard let variable = Self.metadataVariables[entry.key], !entry.value.isEmpty else { continue }
             entries.append((key: variable, value: entry.value))
         }
+        logger.info("Launching session \(sessionID.uuidString, privacy: .public) trace=\(traceID, privacy: .public)")
         return entries
     }
 

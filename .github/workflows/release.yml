@@ -137,6 +137,8 @@ jobs:
       - name: Build and package
         env:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
+          POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
         run: |
           chmod +x scripts/build-release.sh scripts/create-icns.sh
           scripts/build-release.sh \

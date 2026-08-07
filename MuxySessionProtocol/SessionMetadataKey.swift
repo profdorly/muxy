@@ -3,4 +3,5 @@ public enum SessionMetadataKey {
     public static let worktree = "worktree"
     public static let tab = "tab"
     public static let title = "title"
+    public static let traceID = "trace_id"
 }

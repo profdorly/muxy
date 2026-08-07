@@ -1,0 +1,72 @@
+name: Sentry to Issues
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  file-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check configuration
+        id: config
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+        run: |
+          if [[ -z "$SENTRY_AUTH_TOKEN" || -z "$SENTRY_ORG" || -z "$SENTRY_PROJECT" ]]; then
+            echo "Sentry configuration missing; skipping sync run"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: File GitHub issues for unlinked Sentry issues
+        if: steps.config.outputs.ready == 'true'
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          gh label create sentry --color "7B61FF" --description "Filed from Sentry error tracking" \
+            --repo "${{ github.repository }}" 2>/dev/null || true
+
+          RESPONSE=$(curl -fsS \
+            -H "Authorization: Bearer $SENTRY_AUTH_TOKEN" \
+            "https://sentry.io/api/0/projects/$SENTRY_ORG/$SENTRY_PROJECT/issues/?query=is:unresolved&sort=freq&limit=10")
+
+          FILED=0
+          while IFS= read -r ROW; do
+            SHORT_ID=$(echo "$ROW" | jq -r .shortId)
+            TITLE=$(echo "$ROW" | jq -r .title | tr -d '\n' | cut -c1-120)
+            COUNT=$(echo "$ROW" | jq -r .count)
+            LINK=$(echo "$ROW" | jq -r .permalink)
+            LEVEL=$(echo "$ROW" | jq -r .level)
+            CULPRIT=$(echo "$ROW" | jq -r .culprit | tr -d '\n' | cut -c1-200)
+
+            MARKER="sentry:$SHORT_ID"
+            EXISTING=$(gh issue list --repo "${{ github.repository }}" --state all \
+              --search "$MARKER in:title" --json number --jq 'length')
+            if [[ "$EXISTING" != "0" ]]; then
+              continue
+            fi
+
+            gh issue create --repo "${{ github.repository }}" \
+              --title "[$MARKER] $TITLE" \
+              --label bug --label sentry \
+              --body "$(printf 'Filed automatically from Sentry.\n\n- **Level:** %s\n- **Events:** %s\n- **Culprit:** `%s`\n- **Sentry:** %s\n\n%s' \
+                "$LEVEL" "$COUNT" "$CULPRIT" "$LINK" "$MARKER")"
+            FILED=$((FILED + 1))
+            [[ "$FILED" -ge 3 ]] && break
+          done < <(echo "$RESPONSE" | jq -c '.[]')
+
+          echo "Filed $FILED new issue(s)"

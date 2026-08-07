@@ -2551,9 +2551,10 @@ private struct SentryConsentPrompter: ViewModifier {
         alert.messageText = L10n.string("Help improve Muxy?")
         alert.informativeText = L10n.string(
             """
-            Muxy can send anonymous crash and error reports so we can fix bugs faster. \
+            Muxy can send anonymous crash reports and anonymous usage statistics so we can \
+            fix bugs faster and understand which features are used. \
             No personal data, no project contents, no file paths are sent — only crash \
-            details and an anonymous installation ID.
+            details, coarse feature events, and an anonymous installation ID.
 
             You can change this anytime in Settings → General → Diagnostics.
             """
@@ -2568,6 +2569,8 @@ private struct SentryConsentPrompter: ViewModifier {
         alert.beginSheetModal(for: window) { response in
             let consent: SentryConsent = response == .alertFirstButtonReturn ? .allowed : .denied
             SentryService.shared.setConsent(consent)
+            let analyticsConsent: AnalyticsConsent = response == .alertFirstButtonReturn ? .allowed : .denied
+            AnalyticsService.shared.setConsent(analyticsConsent)
         }
     }
 }

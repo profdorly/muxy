@@ -74,10 +74,21 @@ The script runs the following steps in order, stopping on the first failure:
 
 1. **Formatting** — `swiftformat --lint .` (or `swiftformat .` with `--fix`)
 2. **Linting** — `swiftlint lint --strict --quiet` (or `--fix` first with `--fix`)
-3. **Build tests** — `swift build --build-tests --quiet`
-4. **Test** — `swift test --quiet`
+3. **Docs accuracy** — `scripts/check-agents-md.sh` validates that script references in the docs exist
+4. **Unused dependencies** — `scripts/check-unused-deps.sh` fails if a package is never imported
+5. **Build tests** — `swift build --build-tests --quiet`
+6. **Test** — `swift test --quiet`
 
 Tool versions are pinned in `.tool-versions` and the script validates them on startup. If your local versions don't match, it will tell you exactly what's expected.
+
+Additional quality gates run in CI on every PR:
+
+- **Code health** — `scripts/check-code-health.sh` keeps cyclomatic complexity and file length from growing
+- **Dead code** — `scripts/check-dead-code.sh` keeps unused declarations from growing
+- **Duplication** — `scripts/check-duplicates.sh` keeps copy-pasted code under a threshold
+- **Security** — CodeQL static analysis (`.github/workflows/codeql.yml`)
+
+These are ratchets: they compare against checked-in baselines and fail only when things get worse. See the "Code Health" section of `AGENTS.md` for how to run them locally and refresh baselines.
 
 ## Pull Request Guidelines
 
@@ -92,6 +103,15 @@ Tool versions are pinned in `.tool-versions` and the script validates them on st
 - Use the [Bug Report](.github/ISSUE_TEMPLATE/bug_report.yml) template for bugs
 - Use the [Feature Request](.github/ISSUE_TEMPLATE/feature_request.yml) template for ideas
 - Search existing issues before creating a new one
+
+### Labels
+
+Issues and PRs are organized with two label families:
+
+- **Priority** — `priority: critical`, `priority: high`, `priority: medium`, `priority: low`
+- **Area** — `area: terminal`, `area: browser`, `area: extensions`, `area: git`, `area: ui`, `area: remote`, `area: ai`, `area: infra`
+
+A `dependencies` label marks dependency-update PRs (applied automatically by Dependabot). Maintainers apply labels during triage; reporters don't need to set them.
 
 ## License
 

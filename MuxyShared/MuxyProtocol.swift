@@ -54,7 +54,7 @@ public struct MuxyError: Codable, Sendable, Error {
     public static let internalError = MuxyError(code: 500, message: "Internal error")
     public static let unauthorized = MuxyError(code: 401, message: "Authentication required")
     public static let pairingDenied = MuxyError(code: 403, message: "Pairing denied")
-    public static let pairingTimeout = MuxyError(code: 408, message: "Pairing request timed out")
+
     public static let forbidden = MuxyError(code: 403, message: "Forbidden")
     public static let extensionUnavailable = MuxyError(code: 503, message: "Extension unavailable")
     public static let timeout = MuxyError(code: 504, message: "Request timed out")

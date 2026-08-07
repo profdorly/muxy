@@ -248,6 +248,10 @@ final class SessionDaemon {
         create(request: request, connection: connection)
     }
 
+    private func traceID(for metadata: [SessionEnvironmentEntry]) -> String {
+        metadata.first { $0.key == SessionMetadataKey.traceID }?.value ?? "-"
+    }
+
     private func attach(session: PTYSession, request: SessionAttachRequest, connection: SessionConnection) {
         if let previous = session.clientDescriptor, previous != connection.descriptor {
             connections[previous]?.attachedSession = nil
@@ -256,6 +260,7 @@ final class SessionDaemon {
         session.clientDescriptor = connection.descriptor
         session.metadata = request.metadata
         connection.attachedSession = session.identifier
+        SessionLog.write("session attached id=\(session.identifier.uuidString) trace=\(traceID(for: request.metadata))")
 
         if SessionWindowSizePolicy.isUsable(columns: request.columns, rows: request.rows) {
             SessionPTY.resize(
@@ -318,6 +323,7 @@ final class SessionDaemon {
         sessions[request.identifier] = session
         sessionsByMaster[process.masterDescriptor] = request.identifier
         connection.attachedSession = request.identifier
+        SessionLog.write("session created id=\(request.identifier.uuidString) trace=\(traceID(for: request.metadata))")
 
         connection.enqueue(SessionFrame(
             kind: .attached,
@@ -395,6 +401,7 @@ final class SessionDaemon {
 
     private func finishSession(_ session: PTYSession, status: Int32) {
         sessions.removeValue(forKey: session.identifier)
+        SessionLog.write("session exited id=\(session.identifier.uuidString) status=\(status) trace=\(traceID(for: session.metadata))")
         guard let descriptor = session.clientDescriptor, let connection = connections[descriptor] else { return }
         connection.enqueue(SessionFrame(kind: .exited, payload: SessionExitPayload.encode(status: status)))
         connection.attachedSession = nil

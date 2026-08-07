@@ -145,6 +145,14 @@ if [ "$failed" -eq 0 ] && [ "$HAS_SWIFTLINT" -eq 1 ]; then
 fi
 
 if [ "$failed" -eq 0 ]; then
+  run_step "Docs accuracy" "$SCRIPT_DIR/check-agents-md.sh" || failed=1
+fi
+
+if [ "$failed" -eq 0 ]; then
+  run_step "Unused dependencies" "$SCRIPT_DIR/check-unused-deps.sh" || failed=1
+fi
+
+if [ "$failed" -eq 0 ]; then
   run_step "Build tests" swift build --build-tests --quiet || failed=1
 fi
 

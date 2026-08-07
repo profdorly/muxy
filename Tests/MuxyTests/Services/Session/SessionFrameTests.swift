@@ -172,6 +172,26 @@ struct SessionMessagesTests {
         #expect(try SessionAttachRequest.decode(request.encoded()) == request)
     }
 
+    @Test("round-trips an attach request carrying a trace identifier")
+    func roundTripsAttachRequestTraceID() throws {
+        let identifier = try makeIdentifier()
+        let traceID = "6f1a2b3c-4d5e-4f60-8192-a1b2c3d4e5f6"
+        let request = SessionAttachRequest(
+            identifier: identifier,
+            columns: 120,
+            rows: 40,
+            workingDirectory: "/Users/test/project",
+            command: "",
+            shell: "/bin/zsh",
+            resourcesDirectory: "",
+            environment: [],
+            metadata: [SessionEnvironmentEntry(key: SessionMetadataKey.traceID, value: traceID)]
+        )
+        let decoded = try SessionAttachRequest.decode(request.encoded())
+        #expect(decoded == request)
+        #expect(decoded.metadata.first { $0.key == SessionMetadataKey.traceID }?.value == traceID)
+    }
+
     @Test("round-trips an attach request with no environment")
     func roundTripsEmptyEnvironment() throws {
         let identifier = try makeIdentifier()

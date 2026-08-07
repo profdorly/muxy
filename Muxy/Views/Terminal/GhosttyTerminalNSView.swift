@@ -783,10 +783,6 @@ final class GhosttyTerminalNSView: NSView,
         return ghostty_surface_needs_confirm_quit(surface)
     }
 
-    func notifySurfaceFocused() {
-        setSurfaceFocused(true)
-    }
-
     func notifySurfaceUnfocused() {
         setSurfaceFocused(false)
     }

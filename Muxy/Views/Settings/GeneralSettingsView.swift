@@ -6,6 +6,7 @@ struct GeneralSettingsView: View {
     @AppStorage(QuitConfirmationPreferences.confirmQuitKey)
     private var confirmQuit = true
     @State private var sentry = SentryService.shared
+    @State private var analytics = AnalyticsService.shared
     @State private var updateService = UpdateService.shared
 
     var body: some View {
@@ -34,26 +35,34 @@ struct GeneralSettingsView: View {
                 .help(L10n.string("Automatic updates are unavailable for this configuration."))
             }
 
-            SettingsSection("Quit", showsDivider: sentry.hasDSN) {
+            SettingsSection("Quit", showsDivider: sentry.hasDSN || analytics.hasAPIKey) {
                 SettingsToggleRow(
                     label: L10n.resource("Confirm before quitting Muxy"),
                     isOn: $confirmQuit
                 )
             }
 
-            if sentry.hasDSN {
+            if sentry.hasDSN || analytics.hasAPIKey {
                 SettingsSection(
                     "Diagnostics",
                     footer: """
-                    Anonymous crash reports help us fix bugs. Reports never include project paths, file contents, or \
-                    personal data.
+                    Anonymous crash reports and usage statistics help us fix bugs and understand which features \
+                    are used. Nothing sent ever includes project paths, file contents, or personal data.
                     """,
                     showsDivider: false
                 ) {
-                    SettingsToggleRow(
-                        label: L10n.resource("Send anonymous crash reports"),
-                        isOn: sentryConsentBinding
-                    )
+                    if sentry.hasDSN {
+                        SettingsToggleRow(
+                            label: L10n.resource("Send anonymous crash reports"),
+                            isOn: sentryConsentBinding
+                        )
+                    }
+                    if analytics.hasAPIKey {
+                        SettingsToggleRow(
+                            label: L10n.resource("Send anonymous usage statistics"),
+                            isOn: analyticsConsentBinding
+                        )
+                    }
                 }
             }
         }
@@ -63,6 +72,13 @@ struct GeneralSettingsView: View {
         Binding(
             get: { sentry.consent == .allowed },
             set: { newValue in sentry.setConsent(newValue ? .allowed : .denied) }
+        )
+    }
+
+    private var analyticsConsentBinding: Binding<Bool> {
+        Binding(
+            get: { analytics.consent == .allowed },
+            set: { newValue in analytics.setConsent(newValue ? .allowed : .denied) }
         )
     }
 

@@ -161,12 +161,6 @@ public final class MuxyRemoteServer: @unchecked Sendable {
         }
     }
 
-    public func disconnect(clientID: UUID) {
-        queue.async { [weak self] in
-            self?.connections[clientID]?.cancel()
-        }
-    }
-
     public func disconnect(deviceID: UUID) {
         queue.async { [weak self] in
             guard let self else { return }
@@ -286,9 +280,31 @@ public final class MuxyRemoteServer: @unchecked Sendable {
     }
 
     private static let voidMethods: Set<MuxyMethod> = [.terminalInput]
+    private static let highVolumeMethods: Set<MuxyMethod> = [.terminalInput, .terminalResize, .terminalScroll]
 
     @MainActor
     func processRequest(_ request: MuxyRequest, clientID: UUID) async -> MuxyResponse {
+        let verbose = !Self.highVolumeMethods.contains(request.method)
+        let started = Date()
+        if verbose {
+            logger.debug("rpc \(request.method.rawValue, privacy: .public) trace=\(request.id, privacy: .public) start")
+        }
+        let response = await dispatchRequest(request, clientID: clientID)
+        if let error = response.error {
+            logger.error(
+                "rpc \(request.method.rawValue, privacy: .public) trace=\(request.id, privacy: .public) failed code=\(error.code) message=\(error.message, privacy: .public)"
+            )
+        } else if verbose {
+            let elapsedMilliseconds = Int(Date().timeIntervalSince(started) * 1000)
+            logger.debug(
+                "rpc \(request.method.rawValue, privacy: .public) trace=\(request.id, privacy: .public) done elapsed_ms=\(elapsedMilliseconds)"
+            )
+        }
+        return response
+    }
+
+    @MainActor
+    private func dispatchRequest(_ request: MuxyRequest, clientID: UUID) async -> MuxyResponse {
         guard let delegate else {
             return MuxyResponse(id: request.id, error: MuxyError.internalError)
         }

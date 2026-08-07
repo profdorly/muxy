@@ -1,6 +1,5 @@
 import Foundation
 import JavaScriptCore
-import MuxyShared
 
 func fail(_ message: String) -> Never {
     FileHandle.standardError.write(Data("[muxy-extension-host] \(message)\n".utf8))

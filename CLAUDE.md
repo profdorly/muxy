@@ -18,6 +18,34 @@ Run `scripts/checks.sh --fix` after every task.
 
 Test processes use isolated Application Support storage.
 
+## Code Health
+
+`scripts/checks.sh` also validates documentation accuracy and unused dependencies. Additional quality gates run in CI and can be run locally:
+
+```bash
+scripts/check-agents-md.sh        # Validate AGENTS.md/README/CONTRIBUTING script references
+scripts/check-unused-deps.sh      # Fail if a Package.swift dependency is never imported
+scripts/check-code-health.sh      # Ratchet: cyclomatic complexity + file length must not grow
+scripts/check-dead-code.sh        # Ratchet: dead code (periphery) must not grow
+scripts/check-duplicates.sh       # Ratchet: code duplication (jscpd) must stay under threshold
+```
+
+The ratchet scripts compare against checked-in baselines (`.code-health-baseline.json`, `.dead-code-baseline.json`). They fail when debt grows and pass when it shrinks or stays flat. After genuinely reducing debt, regenerate a baseline with `scripts/check-code-health.sh --update-baseline` or `scripts/check-dead-code.sh --update-baseline` and commit the result.
+
+## Code Health
+
+`scripts/checks.sh` also validates documentation accuracy and unused dependencies. Additional quality gates run in CI and can be run locally:
+
+```bash
+scripts/check-agents-md.sh        # Validate AGENTS.md/README/CONTRIBUTING script references
+scripts/check-unused-deps.sh      # Fail if a Package.swift dependency is never imported
+scripts/check-code-health.sh      # Ratchet: cyclomatic complexity + file length must not grow
+scripts/check-dead-code.sh        # Ratchet: dead code (periphery) must not grow
+scripts/check-duplicates.sh       # Ratchet: code duplication (jscpd) must stay under threshold
+```
+
+The ratchet scripts compare against checked-in baselines (`.code-health-baseline.json`, `.dead-code-baseline.json`). They fail when debt grows and pass when it shrinks or stays flat. After genuinely reducing debt, regenerate a baseline with `scripts/check-code-health.sh --update-baseline` or `scripts/check-dead-code.sh --update-baseline` and commit the result.
+
 ## Validation
 
 `scripts/checks.sh --fix` is the single validation entry point and must pass after every task. Muxy is a native macOS SwiftUI GUI app with no scriptable user flow, so agents must never attempt UI automation or QA against the running app. Compilation plus unit tests are the only automated validation. Visual behavior is verified manually by the user.

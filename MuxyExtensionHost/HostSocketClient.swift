@@ -5,7 +5,6 @@ import MuxyShared
 final class HostSocketClient: @unchecked Sendable {
     enum ClientError: Error {
         case connectFailed(String)
-        case notConnected
         case closed
     }
 

@@ -1,0 +1,18 @@
+{
+  "threshold": 2,
+  "format": ["swift"],
+  "minLines": 10,
+  "minTokens": 70,
+  "ignore": [
+    ".build/**",
+    "GhosttyKit*/**",
+    "Tests/**",
+    "Muxy/Resources/**",
+    "**/*.md",
+    "docs/**",
+    "scripts/**"
+  ],
+  "reporters": ["console"],
+  "exitCode": 1,
+  "absolute": false
+}

@@ -40,6 +40,15 @@ The app does not contact any Muxy-operated server. It does not contact any third
 
 - **Local Network.** Required by iOS so the app can reach the Mac you pair with on your LAN or VPN.
 
+## The Muxy desktop app for macOS
+
+This policy covers the iOS companion app. The Muxy desktop app for macOS is a separate product with its own, strictly opt-in diagnostics:
+
+- **Crash reports (Sentry).** If you explicitly allow it, the desktop app sends anonymous crash and error reports so bugs can be fixed faster. Reports never include project paths, file contents, terminal output, or personal data.
+- **Usage statistics (PostHog).** If you explicitly allow it, the desktop app sends anonymous, coarse feature events (for example, that the app launched or that an extension was installed). Person profiles are disabled, no autocapture is enabled, and events are tied only to an anonymous installation ID.
+
+Both are off by default, are only enabled after you tap **Allow** in the in-app consent prompt, and can be turned off at any time in Settings → General → Diagnostics. Declining either one changes nothing about how the app works.
+
 ## Children
 
 The app is a developer tool and is not directed to children under 13.

@@ -359,6 +359,7 @@ enum SettingsJSONStore {
             UpdateChannel.storageKey: Set(UpdateChannel.allCases.map(\.rawValue)),
             ProjectPickerPreferences.storageKey: Set(ProjectPickerMode.allCases.map(\.rawValue)),
             SentryConsent.storageKey: Set(["", SentryConsent.allowed.rawValue, SentryConsent.denied.rawValue]),
+            AnalyticsConsent.storageKey: Set(["", AnalyticsConsent.allowed.rawValue, AnalyticsConsent.denied.rawValue]),
             "muxy.ui.scale": Set(UIScale.Preset.allCases.map(\.rawValue)),
             AppBackgroundStyle.storageKey: Set(AppBackgroundStyle.allCases.map(\.rawValue)),
             SidebarCollapsedStyle.storageKey: Set(SidebarCollapsedStyle.allCases.map(\.rawValue)),
@@ -424,6 +425,7 @@ enum SettingsJSONStore {
         let settings = EditorSettings.shared
         return switch item.key {
         case SentryConsent.storageKey: SentryService.shared.consent?.rawValue ?? ""
+        case AnalyticsConsent.storageKey: AnalyticsService.shared.consent?.rawValue ?? ""
         case "muxy.ui.scale": UIScale.shared.preset.rawValue
         case "muxy.theme.light": ThemeService.shared.currentLightThemeName() ?? ThemeService.defaultThemeName
         case "muxy.theme.dark": ThemeService.shared.currentDarkThemeName() ?? ThemeService.defaultThemeName
@@ -488,6 +490,13 @@ enum SettingsJSONStore {
                 UserDefaults.standard.removeObject(forKey: key)
             } else if let consent = SentryConsent(rawValue: rawValue) {
                 SentryService.shared.setConsent(consent)
+            }
+        case AnalyticsConsent.storageKey:
+            guard let rawValue = value as? String else { return false }
+            if rawValue.isEmpty {
+                UserDefaults.standard.removeObject(forKey: key)
+            } else if let consent = AnalyticsConsent(rawValue: rawValue) {
+                AnalyticsService.shared.setConsent(consent)
             }
         case "muxy.ui.scale":
             guard let rawValue = value as? String, let preset = UIScale.Preset(rawValue: rawValue) else { return false }

@@ -105,19 +105,6 @@ public struct AgentHookSocketClient {
         try exchange(line: line, descriptor: descriptor, deadline: deadline)
     }
 
-    public static func sendConnected(
-        descriptor: Int32,
-        line: Data,
-        remainingBudget: TimeInterval
-    ) throws {
-        try configure(descriptor: descriptor)
-        try exchange(
-            line: line,
-            descriptor: descriptor,
-            deadline: AgentHookExecutionBudget(duration: remainingBudget)
-        )
-    }
-
     private static func configure(descriptor: Int32) throws {
         var suppressBrokenPipe: Int32 = 1
         guard setsockopt(

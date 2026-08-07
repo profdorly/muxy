@@ -46,6 +46,18 @@ jobs:
       - name: Linting
         run: swiftlint lint --strict --quiet
 
+      - name: Code health
+        run: scripts/check-code-health.sh
+
+      - name: Unused dependencies
+        run: scripts/check-unused-deps.sh
+
+      - name: Documentation accuracy
+        run: scripts/check-agents-md.sh
+
+      - name: Duplicate code
+        run: scripts/check-duplicates.sh
+
       - name: Resolve GhosttyKit version
         run: echo "GHOSTTY_TAG=$(gh release list --repo muxy-app/ghostty --limit 1 --json tagName -q '.[0].tagName')" >> "$GITHUB_ENV"
         env:
@@ -79,7 +91,7 @@ jobs:
         run: swift build --build-tests --quiet
 
       - name: Test
-        run: swift test --quiet
+        run: scripts/test-with-flaky-detection.sh
 
       - name: Save SPM cache
         if: always() && steps.spm-cache.outputs.cache-hit != 'true'
