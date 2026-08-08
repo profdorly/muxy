@@ -1,6 +1,6 @@
 # AI notifications
 
-Muxy tracks the AI coding agents running inside its terminals — Claude Code, Codex, Cursor, GitHub Copilot, Droid, Grok, OpenCode, and Pi — and surfaces their lifecycle as pane and worktree status, completion badges, and notifications when a turn finishes or an agent needs attention.
+Muxy tracks the AI coding agents running inside its terminals — Claude Code, Codex, Cursor, GitHub Copilot, Droid, Grok, Kiro CLI, OpenCode, and Pi — and surfaces their lifecycle as pane and worktree status, completion badges, and notifications when a turn finishes or an agent needs attention.
 
 There are two independent sources of truth, and hooks are authoritative.
 
@@ -43,7 +43,7 @@ The bridge retries an event when an ack does not arrive within its delivery budg
 The compiled hook bridge (`muxy-hook`) and the provider shims are staged into `~/Library/Application Support/Muxy/hooks` (`hooks-dev` for debug builds) with private permissions:
 
 - `muxy-hook` — the compiled bridge every hook invokes.
-- `muxy-claude-hook.sh`, `muxy-codex-hook.sh`, `muxy-copilot-hook.sh`, `muxy-cursor-hook.sh`, `muxy-droid-hook.sh`, `muxy-grok-hook.sh` — thin shell shims that exec the colocated `muxy-hook`.
+- `muxy-claude-hook.sh`, `muxy-codex-hook.sh`, `muxy-copilot-hook.sh`, `muxy-cursor-hook.sh`, `muxy-droid-hook.sh`, `muxy-grok-hook.sh`, `muxy-kiro-hook.sh` — thin shell shims that exec the colocated `muxy-hook`.
 - `opencode-muxy-plugin.js`, `muxy-pi-extension.ts` — plugin/extension entry points that spawn the staged `muxy-hook`. When the binary is missing they log a clear error to their own stderr and skip the event. That stderr never reaches Muxy, so nothing restages automatically — use **Refresh** in Settings to restage.
 
 The OpenCode entry point is installed globally at `~/.config/opencode/plugins/muxy-notify.js`. OpenCode loads local plugins at startup, so restart any running OpenCode session after Muxy first installs or repairs this file.
@@ -60,7 +60,7 @@ Muxy records a hash of every config file it writes and ignores watcher events wh
 
 Providers that moved to a new config location also declare their obsolete paths. Those are watched alongside the managed ones and deleted on install, so an older Muxy build restoring a superseded copy triggers a repair instead of leaving two live hooks.
 
-Results are tracked per provider in the health store — install state, last verified/repaired time, last event time, and last error — and shown in **Settings → Notifications** as a status dot and line per provider. A `conflict` means Muxy found a non-Muxy hook it will not overwrite; the message names it. Copilot CLI hooks live in `~/.copilot/hooks/muxy-notify.json` (or `$COPILOT_HOME/hooks/` when set); restart the CLI after Muxy repairs hooks so the new config is loaded.
+Results are tracked per provider in the health store — install state, last verified/repaired time, last event time, and last error — and shown in **Settings → Notifications** as a status dot and line per provider. A `conflict` means Muxy found a non-Muxy hook it will not overwrite; the message names it. Copilot CLI hooks live in `~/.copilot/hooks/muxy-notify.json` (or `$COPILOT_HOME/hooks/` when set); restart the CLI after Muxy repairs hooks so the new config is loaded. Kiro CLI hooks live in `~/.kiro/hooks/muxy-notify.json`; global hooks require the CLI's V3 mode (`kiro-cli --v3`), available since CLI 2.13 and standard in CLI 3.0. Kiro loads hooks at session start, so start a new session after Muxy installs or repairs the file.
 
 OpenCode also runs a bounded, read-only `opencode debug info` discovery probe after reconciliation. Its provider row reports the resolved CLI version and whether OpenCode's effective plugin list contains Muxy's exact managed plugin. Discovery results are separate from hook verification and event delivery, and are logged through the `ProviderDiscovery` unified-log category with executable paths kept private.
 
