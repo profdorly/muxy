@@ -1,0 +1,71 @@
+{
+  "$schema": "https://raw.githubusercontent.com/muxy-app/muxy/main/docs/extensions/schema/manifest.schema.json",
+  "name": "prompt-enhancer",
+  "version": "0.1.0",
+  "muxy": {
+    "description": "Rewrites the Rich Input draft with the agent CLI you already use.",
+    "permissions": [
+      "composer:write",
+      "commands:exec",
+      "notifications:write",
+      "panels:write"
+    ],
+    "events": ["settings.changed"],
+    "background": "background.js",
+    "commands": [
+      {
+        "id": "enhance",
+        "title": "Prompt Enhancer: Enhance Prompt",
+        "subtitle": "rewrite composer draft",
+        "defaultShortcut": "cmd+opt+e"
+      },
+      {
+        "id": "choose",
+        "title": "Prompt Enhancer: Choose CLI",
+        "action": { "kind": "openPanel", "panel": "cli" }
+      }
+    ],
+    "panels": [
+      {
+        "id": "cli",
+        "title": "Prompt Enhancer",
+        "icon": { "svg": "icon.svg" },
+        "entry": "panel.html",
+        "mode": "detached",
+        "frame": { "width": 320, "height": 560 },
+        "minSize": { "width": 280, "height": 360 }
+      }
+    ],
+    "railItems": [
+      {
+        "id": "enhance",
+        "icon": { "svg": "icon.svg" },
+        "command": "enhance",
+        "tooltip": "Enhance prompt"
+      }
+    ],
+    "settings": [
+      {
+        "key": "cli",
+        "title": "CLI",
+        "description": "Leave empty for the first installed CLI. Ids, in order: claude, codex, opencode, copilot, cursor, droid, grok, kiro, pi, xal, antigravity, omp.",
+        "type": "string",
+        "defaultValue": ""
+      },
+      {
+        "key": "model",
+        "title": "Model",
+        "description": "Passed only when that CLI has a confirmed model flag. Xal has none: clear this to use its default. Leave empty to use the CLI's own default.",
+        "type": "string",
+        "defaultValue": ""
+      },
+      {
+        "key": "instructions",
+        "title": "Extra instructions",
+        "description": "Added after the built-in rubric. The CLI is still asked to reply with only the rewritten prompt.",
+        "type": "string",
+        "defaultValue": ""
+      }
+    ]
+  }
+}

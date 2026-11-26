@@ -1,0 +1,32 @@
+[muxy] started prompt-enhancer v0.1.0
+[muxy] exited cleanly
+[muxy] started prompt-enhancer v0.1.0
+[err] Error: script is no longer active
+[muxy] runScript failed
+[muxy] exited cleanly
+[muxy] started prompt-enhancer v0.1.0
+[muxy] exec is waiting for the user to allow it in Muxy
+[muxy] exec denied: nobody answered the prompt within 60 seconds
+[muxy] exec is waiting for the user to allow it in Muxy
+[muxy] exec denied: nobody answered the prompt within 60 seconds
+[muxy] exited cleanly
+[muxy] started prompt-enhancer v0.1.0
+[log] enhance empty
+[muxy] exec is waiting for the user to allow it in Muxy
+[log] found codex, cursor-agent, droid, agy
+[muxy] exec is waiting for the user to allow it in Muxy
+[muxy] exec is waiting for the user to allow it in Muxy
+[log] enhance replaced the draft with codex
+[muxy] exited cleanly
+[muxy] started prompt-enhancer v0.1.0
+[muxy] exec is waiting for the user to allow it in Muxy
+[muxy] exec denied: nobody answered the prompt within 60 seconds
+[log] detect failed: Muxy needs permission to run a program for Prompt Enhancer. Allow it, then try again.
+[muxy] started prompt-enhancer v0.1.0
+[muxy] started prompt-enhancer v0.1.0
+[muxy] started prompt-enhancer v0.1.0
+[muxy] started prompt-enhancer v0.1.0
+[muxy] started prompt-enhancer v0.1.0
+[muxy] started prompt-enhancer v0.1.0
+[muxy] started prompt-enhancer v0.1.0
+[muxy] started prompt-enhancer v0.1.0
